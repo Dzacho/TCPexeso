@@ -73,7 +73,11 @@ void Pexeso::configure()
 
 void Pexeso::joinGameServer()
 {
+#ifdef DEBUG_H
+    std::cout << "Starting client" << std::endl;
+#endif
     Client Pexeclient;
+//    sleep(1);
 //    Pexeclient.onReadyRead();
 }
 

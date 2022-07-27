@@ -24,7 +24,7 @@ public slots:
 private:
     QTcpServer  _server;
     QTcpSocket *_socket = nullptr;
-    QList<QTcpSocket*>  _sockets;
+//    QList<QTcpSocket*>  _sockets;
 };
 
 #endif // SERVER_H

@@ -10,7 +10,6 @@ class Client : public QWidget
 
     unsigned int cols;
     unsigned int rows;
-
     unsigned int *mix;
 
 public:

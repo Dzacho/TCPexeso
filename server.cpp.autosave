@@ -79,8 +79,7 @@ void Server::onNewConnection()
 //    _socket->setCurrentReadChannel(1);
 //    _socket->setCurrentWriteChannel(1);
 #ifdef DEBUG_H
-    std:: cout << _socket->isWritable() << std::endl;
-    std:: cout << _socket->isReadable() << std::endl;
+    std::cout << _socket-> << std::endl;
     std::cout << "socket address: " << _socket << std::endl;
 #endif
     connect(_socket, SIGNAL(readyRead()), this, SLOT(onReadyRead()));

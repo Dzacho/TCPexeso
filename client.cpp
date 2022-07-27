@@ -29,6 +29,7 @@ void Client::onReadyRead()
 #ifdef DEBUG_H
     std::cout << "client got signal readyRead" << std::endl;
 #endif
+    _socket.write(QByteArray("Message arrived\n"));
     QByteArray datas = _socket.readAll();
 //    qDebug() << datas;
 #ifdef DEBUG_H
