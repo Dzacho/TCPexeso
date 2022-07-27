@@ -57,10 +57,11 @@ public:
     ~Pexeso();
 public slots:
     void configure();
+    void joinGameServer();
     void loadSettings();
     void saveSettings();
     void stackedWidget_clicked(unsigned int index);
-    void startGame();
+    void startGameServer();
     void stopGame();
 };
 #endif // PEXESO_H

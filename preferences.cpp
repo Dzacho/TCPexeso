@@ -1,4 +1,5 @@
 #include "preferences.h"
+#include "debug.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>

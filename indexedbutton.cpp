@@ -1,4 +1,5 @@
 #include "indexedbutton.h"
+#include "debug.h"
 
 indexedButton::indexedButton(unsigned int index)
 {

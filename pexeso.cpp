@@ -1,6 +1,10 @@
+#include "client.h"
+#include "debug.h"
 #include "pexeso.h"
 #include "indexedbutton.h"
 #include "preferences.h"
+#include "server.h"
+
 #include <QAction>
 #include <QCloseEvent>
 #include <QComboBox>
@@ -35,7 +39,7 @@ Pexeso::Pexeso(QWidget *parent)
     loadSettings();
     loadImages();
     setupMenu();
-    startGame();
+//    startGameServer();
     setWindowTitle(tr("Flag alphabet Pexeso"));
     resize(1024, 768);
 }
@@ -63,8 +67,14 @@ void Pexeso::configure()
         cols = p.getCols();
         rows = p.getRows();
         n = cols*rows/2;
-        startGame();
+        startGameServer();
     }
+}
+
+void Pexeso::joinGameServer()
+{
+    Client Pexeclient;
+//    Pexeclient.onReadyRead();
 }
 
 void Pexeso::loadImages()
@@ -173,7 +183,9 @@ void Pexeso::loadSettings()
 
 void Pexeso::mixing()
 {
+#ifdef DEBUG_H
     std::cout<< "mixing" << std::endl;
+#endif
     unsigned int *select = new unsigned int[rows * cols];
     for(unsigned int i = 0; i < n; i++)
     {
@@ -202,7 +214,9 @@ void Pexeso::mixing()
         }
     }
     delete[] select;
+#ifdef DEBUG_H
     std::cout << "mixed" << std::endl;
+#endif
 }
 
 void Pexeso::saveSettings()
@@ -217,20 +231,20 @@ void Pexeso::setupMenu()
     mnuGame = new QMenu(tr("&Game"));
 
     mnuStart = new QMenu(tr("S&tart"));
-    mnuStart->setToolTip(tr("Starts a game server"));
+    mnuStart->setToolTip(tr("Gives options to start or join a game server"));
     mnuGame->addMenu(mnuStart);
 
-    actStart = new QAction(tr("Start New &Game"));
-    actStart->setToolTip(tr("Starts new game"));
+    actStart = new QAction(tr("Start New Game &Server"));
+    actStart->setToolTip(tr("Starts new game server"));
     mnuStart->addAction(actStart);
     connect(actStart, SIGNAL(triggered()), this, SLOT(stopGame()));
-    connect(actStart, SIGNAL(triggered()), this, SLOT(startGame()));
+    connect(actStart, SIGNAL(triggered()), this, SLOT(startGameServer()));
 
-    actConnect = new QAction(tr("&Connect to game server"));
+    actConnect = new QAction(tr("&Connect to Game Server"));
     actConnect->setToolTip(tr("Connects to game server"));
     mnuStart->addAction(actConnect);
     connect(actConnect, SIGNAL(triggered()), this, SLOT(stopGame()));
-    connect(actConnect, SIGNAL(triggered()), this, SLOT(startGame()));
+    connect(actConnect, SIGNAL(triggered()), this, SLOT(joinGameServer()));
 
     actSet = new QAction(tr("&Settings"));
     actSet->setToolTip(tr("Allows user to set dimensions of the grid"));
@@ -264,7 +278,9 @@ void Pexeso::setupMenu()
 
 void Pexeso::stackedWidget_clicked(unsigned int index)
 {
+#ifdef DEBUG_H
     std::cout << "slot stackedWidget_clicked(" << index << ")" << std::endl;
+#endif
     if(card[index]->currentIndex())
     {
         return;
@@ -286,7 +302,7 @@ void Pexeso::stackedWidget_clicked(unsigned int index)
                     QMessageBox::information(this, tr("Congratulations!"), tr("Player %1 wins! \nFinal score: Player 1: %2 cards, Player 2: %3 cards. \nStarting new game.").arg(score[0]->intValue() > score[1]->intValue() ? 1 : 2).arg(score[0]->intValue()).arg(score[1]->intValue()));
                 }
                 stopGame();
-                startGame();
+                startGameServer();
                 return;
             }
             else
@@ -296,7 +312,9 @@ void Pexeso::stackedWidget_clicked(unsigned int index)
         }
         else
         {
+#ifdef DEBUG_H
             std::cout << "bad match" << std::endl;
+#endif
             card[index]->setCurrentIndex(1);
             playing->display(playing->intValue() == 1 ? 2 : 1);
             QMessageBox::information(this, tr("Fail."), tr("Wrong pair, now plays player %1.").arg(playing->intValue()));
@@ -309,26 +327,48 @@ void Pexeso::stackedWidget_clicked(unsigned int index)
     {
         card[index]->setCurrentIndex(1);
         opposite_index = index < all/2 ? index + all/2 : index - all/2; //ulozim si index karty, kterou potrebuji do paru
+#ifdef DEBUG_H
         std::cout << "flipped card " << index << ", looking for card " << opposite_index << std::endl;
+#endif
     }
     card_flipped = !card_flipped;
+#ifdef DEBUG_H
     std::cout << "slot stackedWidget_clicked ended" << std::endl;
+#endif
 }
 
-void Pexeso::startGame()
+void Pexeso::startGameServer()
 {
+#ifdef DEBUG_H
     std::cout << "starting a new game" << std::endl;
+#endif
+    Server Pexeserver;
+    try
+    {
+        Pexeserver.waitForClient();
+    }  catch (bool& success)
+    {
+        QMessageBox::information(this, tr("Fail."), tr("Client not connected, game can't be started."));
+        return;
+    }
     mixing();
+    Pexeserver.sendArray(mix, rows, cols);
+#ifdef DEBUG_H
     std::cout << "placing cards" << std::endl;
+#endif
     field = new QGridLayout(centralWidget);
     for(unsigned int i = 0; i < rows; i++)
     {
         for(unsigned int j = 0; j < cols; j++)
         {
+#ifdef DEBUG_H
             std::cout << "flipping card " << mix[cols * i + j] << std::endl;
+#endif
             card[mix[cols * i + j]]->setCurrentIndex(0);
             card[mix[cols * i + j]]->setVisible(true);
+#ifdef DEBUG_H
             std::cout << "card " << mix[cols * i + j] << " flipped" << std::endl;
+#endif
             field->addWidget(card[mix[cols * i + j]], i + 1, j + 1);
             if(!i)
             {
@@ -344,11 +384,23 @@ void Pexeso::startGame()
     score[0]->display(0);
     score[1]->display(0);
     statusBar()->showMessage(tr("Ready"), 3000);
+#ifdef DEBUG_H
     std::cout << "game started" << std::endl;
+#endif
 }
 
 void Pexeso::stopGame()
 {
+#ifdef DEBUG_H
+    std::cout << "Stopping game" << std::endl;
+#endif
+    if(!field)
+    {
+#ifdef DEBUG_H
+        std::cout << "Game not even started yet" << std::endl;
+#endif
+        return;
+    }
     for(unsigned int i = 0; i < rows; i++)
     {
         for(unsigned int j = 0; j < cols; j++)
@@ -358,6 +410,9 @@ void Pexeso::stopGame()
     }
     delete field;
     delete [] mix;
+#ifdef DEBUG_H
+    std::cout << "Game stopped" << std::endl;
+#endif
 }
 
 Pexeso::~Pexeso()

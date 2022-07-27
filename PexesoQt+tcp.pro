@@ -18,6 +18,7 @@ SOURCES += \
 
 HEADERS += \
     client.h \
+    debug.h \
     indexedbutton.h \
     pexeso.h \
     preferences.h \

@@ -12,6 +12,9 @@ class Server : public QWidget
 public:
     explicit Server(QWidget *parent = 0);
     ~Server();
+//    friend class Pexeso;
+    void sendArray(unsigned int *array, unsigned int rows, unsigned int cols);
+    void waitForClient();
 
 public slots:
     void onNewConnection();
@@ -20,6 +23,7 @@ public slots:
 
 private:
     QTcpServer  _server;
+    QTcpSocket *_socket = nullptr;
     QList<QTcpSocket*>  _sockets;
 };
 
