@@ -54,7 +54,7 @@ void Server::waitForClient()
         throw false;
     }
 #ifdef DEBUG_H
-    std::cout << "Client connected" << std::endl;
+    std::cout << "WaitForClient ended" << std::endl;
 #endif
 }
 
