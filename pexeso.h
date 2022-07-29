@@ -32,7 +32,7 @@ class Pexeso : public QMainWindow
     bool card_flipped;
     QWidget *centralWidget;
     indexedButton *clickField[all];
-    QGridLayout *field;
+    QGridLayout *field = nullptr;
     QWidget *grid;
     QLabel *image[all/2];
     unsigned int *mix;
